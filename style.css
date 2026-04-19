@@ -231,42 +231,28 @@ html, body {
     font-size: 14px;
 }
 
-.calc {
-    width: 90%;
-    max-width: 300px;
-    margin: auto;
-    margin-top: 50px;
+.error-screen {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #111;
+    color: white;
     text-align: center;
+    padding: 20px;
 }
 
-#calcDisplay {
-    width: 100%;
-    padding: 15px;
-    font-size: 22px;
-    border-radius: 10px;
+.error-screen h2 {
+    margin-bottom: 10px;
+}
+
+.error-screen button {
+    margin-top: 20px;
+    padding: 10px 20px;
     border: none;
-    background: #f2f2f2;
-    text-align: right;
-}
-
-.buttons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin-top: 15px;
-}
-
-.buttons button {
-    padding: 15px;
-    font-size: 18px;
-    border: none;
-    border-radius: 10px;
     background: #ff4d6d;
     color: white;
+    border-radius: 8px;
 }
 
-.hint {
-    margin-top: 15px;
-    color: gray;
-    font-size: 12px;
-}
