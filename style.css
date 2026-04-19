@@ -1,9 +1,9 @@
 html, body {
     margin: 0;
+    padding: 0;
     height: 100%;
-    font-family: Arial;
+    background: black; /* fallback */
 }
-
 /* Home */
 .home-header {
     background: #ff4d6d;
@@ -232,12 +232,19 @@ html, body {
 }
 /* 🔥 Full dark background */
 .sys-error {
-    height: 100vh;
-    background: #000;
+    position: fixed;   /* 🔥 VERY IMPORTANT */
+    top: 0;
+    left: 0;
+    width: 100vw;      /* full width */
+    height: 100vh;     /* full height */
+
+    background: black;
+
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: Roboto, Arial, sans-serif;
+
+    z-index: 9999;     /* ensure it's on top */
 }
 
 /* 📦 Dialog box */
