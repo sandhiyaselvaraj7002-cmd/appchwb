@@ -47,18 +47,91 @@
 
 <body>
 
-<div class="box">
-    <h2>🔒 UsSpace</h2>
-    <input type="password" id="pin" placeholder="Enter PIN">
-    <button onclick="login()">Unlock</button>
+<!-- 🔢 Fake Calculator Screen -->
+<div id="fakeScreen">
+    <div class="calc">
+        <input type="text" id="calcDisplay" readonly placeholder="0">
+
+        <div class="buttons">
+            <button onclick="press('7')">7</button>
+            <button onclick="press('8')">8</button>
+            <button onclick="press('9')">9</button>
+            <button onclick="press('/')">÷</button>
+
+            <button onclick="press('4')">4</button>
+            <button onclick="press('5')">5</button>
+            <button onclick="press('6')">6</button>
+            <button onclick="press('*')">×</button>
+
+            <button onclick="press('1')">1</button>
+            <button onclick="press('2')">2</button>
+            <button onclick="press('3')">3</button>
+            <button onclick="press('-')">−</button>
+
+            <button onclick="press('0')">0</button>
+            <button onclick="clearCalc()">C</button>
+            <button onclick="calculate()">=</button>
+            <button onclick="press('+')">+</button>
+        </div>
+
+        <p style="color:gray; font-size:12px;">⬆ Swipe up to unlock</p>
+    </div>
 </div>
 
+<!-- 🔒 Real App Login -->
+<div id="realApp" style="display:none;">
+    <div class="box">
+        <h2>🔒 UsSpace 💜</h2>
+        <input type="password" id="pin" placeholder="Enter PIN">
+        <button onclick="login()">Unlock</button>
+    </div>
+</div>
+
+<!-- ⚙️ Script -->
 <script>
+
+// Calculator
+function press(val) {
+    document.getElementById("calcDisplay").value += val;
+}
+
+function clearCalc() {
+    document.getElementById("calcDisplay").value = "";
+}
+
+function calculate() {
+    try {
+        const result = eval(document.getElementById("calcDisplay").value);
+        document.getElementById("calcDisplay").value = result;
+    } catch {
+        alert("Error");
+    }
+}
+
+// Swipe unlock
+let startY = 0;
+let endY = 0;
+
+document.addEventListener("touchstart", e => {
+    startY = e.changedTouches[0].screenY;
+});
+
+document.addEventListener("touchend", e => {
+    endY = e.changedTouches[0].screenY;
+
+    if (startY - endY > 100) {
+        document.getElementById("fakeScreen").style.display = "none";
+        document.getElementById("realApp").style.display = "block";
+    }
+});
+
+// Login (same as before)
 function login(){
     if(document.getElementById("pin").value === "1436"){
         window.location.href="home.html";
     } else alert("Wrong PIN ❌");
 }
+
 </script>
 
 </body>
