@@ -230,7 +230,52 @@ html, body {
     border-radius: 5px;
     font-size: 14px;
 }
+/* 🔥 Full dark background */
+.sys-error {
+    height: 100vh;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Roboto, Arial, sans-serif;
+}
 
+/* 📦 Dialog box */
+.dialog {
+    width: 85%;
+    max-width: 300px;
+    background: #1e1e1e;
+    border-radius: 8px;
+    padding: 20px;
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    text-align: left;
+}
+
+/* 🔤 Title */
+.dialog .title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* 💬 Message */
+.dialog .message {
+    font-size: 14px;
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+/* 🔘 Button */
+.dialog button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background: #2e7dff;
+    color: white;
+    border-radius: 5px;
+    font-size: 14px;
+}
 .error-screen {
     height: 100vh;
     display: flex;
