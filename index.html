@@ -47,38 +47,18 @@
 
 <body>
 
-<!-- 🔢 Fake Calculator Screen -->
-<div id="fakeScreen">
-    <div class="calc">
-        <input type="text" id="calcDisplay" readonly placeholder="0">
+<!-- 🚫 Fake Error Screen -->
+<div id="fakeError" class="error-screen">
+    <h2>⚠️ Access Restricted</h2>
+    <p>This application is not available on your device.</p>
+    <p style="font-size:12px; opacity:0.7;">
+        Please contact administrator or try again later.
+    </p>
 
-        <div class="buttons">
-            <button onclick="press('7')">7</button>
-            <button onclick="press('8')">8</button>
-            <button onclick="press('9')">9</button>
-            <button onclick="press('/')">÷</button>
-
-            <button onclick="press('4')">4</button>
-            <button onclick="press('5')">5</button>
-            <button onclick="press('6')">6</button>
-            <button onclick="press('*')">×</button>
-
-            <button onclick="press('1')">1</button>
-            <button onclick="press('2')">2</button>
-            <button onclick="press('3')">3</button>
-            <button onclick="press('-')">−</button>
-
-            <button onclick="press('0')">0</button>
-            <button onclick="clearCalc()">C</button>
-            <button onclick="calculate()">=</button>
-            <button onclick="press('+')">+</button>
-        </div>
-
-        <p style="color:gray; font-size:12px;">⬆ Swipe up to unlock</p>
-    </div>
+    <button onclick="exitApp()">OK</button>
 </div>
 
-<!-- 🔒 Real App Login -->
+<!-- 🔒 Real App -->
 <div id="realApp" style="display:none;">
     <div class="box">
         <h2>🔒 UsSpace 💜</h2>
@@ -87,28 +67,15 @@
     </div>
 </div>
 
-<!-- ⚙️ Script -->
 <script>
 
-// Calculator
-function press(val) {
-    document.getElementById("calcDisplay").value += val;
+// Fake exit
+function exitApp() {
+    // Try to close or go back
+    window.history.back();
 }
 
-function clearCalc() {
-    document.getElementById("calcDisplay").value = "";
-}
-
-function calculate() {
-    try {
-        const result = eval(document.getElementById("calcDisplay").value);
-        document.getElementById("calcDisplay").value = result;
-    } catch {
-        alert("Error");
-    }
-}
-
-// Swipe unlock
+// 🔥 SECRET SWIPE
 let startY = 0;
 let endY = 0;
 
@@ -119,13 +86,17 @@ document.addEventListener("touchstart", e => {
 document.addEventListener("touchend", e => {
     endY = e.changedTouches[0].screenY;
 
-    if (startY - endY > 100) {
-        document.getElementById("fakeScreen").style.display = "none";
-        document.getElementById("realApp").style.display = "block";
+    if (startY - endY > 120) {
+        unlock();
     }
 });
 
-// Login (same as before)
+function unlock() {
+    document.getElementById("fakeError").style.display = "none";
+    document.getElementById("realApp").style.display = "block";
+}
+
+// Login
 function login(){
     if(document.getElementById("pin").value === "1436"){
         window.location.href="home.html";
