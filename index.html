@@ -48,14 +48,16 @@
 <body>
 
 <!-- 🚫 Fake Error Screen -->
-<div id="fakeError" class="error-screen">
-    <h2>⚠️ Access Restricted</h2>
-    <p>This application is not available on your device.</p>
-    <p style="font-size:12px; opacity:0.7;">
-        Please contact administrator or try again later.
-    </p>
+<div id="fakeError" class="sys-error">
+    <div class="dialog">
+        <div class="title">App Error</div>
 
-    <button onclick="exitApp()">OK</button>
+        <div class="message">
+            Unfortunately, this application has stopped.
+        </div>
+
+        <button id="okBtn">OK</button>
+    </div>
 </div>
 
 <!-- 🔒 Real App -->
