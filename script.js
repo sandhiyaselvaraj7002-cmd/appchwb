@@ -128,3 +128,8 @@ window.onload = () => {
 window.login = login;
 window.sendMessage = sendMessage;
 window.addNote = addNote;
+
+navigator.vibrate(100);
+setTimeout(() => {
+    document.querySelector(".dialog").style.opacity = "1";
+}, 500);
