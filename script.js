@@ -8,7 +8,8 @@ import {
     query,
     orderBy,
     doc,
-    deleteDoc
+    deleteDoc,
+    getDocs
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
 // ===================== 🔥 FIREBASE CONFIG =====================
@@ -25,8 +26,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ===================== 💬 CORE MESSAGING =====================
-
+// ===================== 💬 SEND MESSAGE =====================
 async function sendMessage(textOverride = null) {
     const input = document.getElementById("message");
     const msgText = textOverride || (input ? input.value.trim() : null);
@@ -41,40 +41,31 @@ async function sendMessage(textOverride = null) {
             time: Date.now(),
             sender: currentSender
         });
-        
         if (input && !textOverride) input.value = "";
     } catch (err) {
-        console.error("Firebase Send Error:", err);
+        console.error("Send Error:", err);
     }
 }
 
-// ===================== 🗑️ DELETE FUNCTION =====================
-
+// ===================== 🗑️ DELETE MESSAGE =====================
 async function deleteMessage(msgId, senderName) {
     const myName = localStorage.getItem("chatName") || "User";
 
-    console.log("Attempting to delete:", msgId, "Sent by:", senderName, "Action by:", myName);
-
-    // Permission check
     if (senderName !== myName) {
-        alert(`Wait! You are logged in as "${myName}", but this message was sent by "${senderName}". You can't delete it! ✋`);
+        alert("You can delete only your messages!");
         return;
     }
 
-    const confirmDelete = confirm("Are you sure you want to delete this message?");
-    if (confirmDelete) {
+    if (confirm("Delete this message?")) {
         try {
-            // Create a reference to the specific document
-            const messageRef = doc(db, "messages", msgId);
-            await deleteDoc(messageRef);
-            console.log("Document successfully deleted!");
+            await deleteDoc(doc(db, "messages", msgId));
         } catch (error) {
-            console.error("Error removing document: ", error);
-            alert("Delete failed. Check your Firebase Rules.");
+            console.error("Delete error:", error);
         }
     }
 }
 
+// ===================== 💬 LOAD MESSAGES =====================
 function loadMessages() {
     const chatBox = document.getElementById("chatBox");
     if (!chatBox) return;
@@ -87,95 +78,49 @@ function loadMessages() {
 
         snapshot.forEach((docSnap) => {
             const data = docSnap.data();
-            const msgId = docSnap.id; 
+            const msgId = docSnap.id;
             const isMe = data.sender === myName;
 
             const div = document.createElement("div");
             div.className = `message ${isMe ? "my-msg" : "other-msg"}`;
-            
-            // Critical: Make sure the function is called correctly
-            div.setAttribute("onclick", `deleteMessage('${msgId}', '${data.sender.replace(/'/g, "\\'")}')`);
-            div.style.cursor = "pointer";
+            div.onclick = () => deleteMessage(msgId, data.sender);
 
             div.innerHTML = `
-                <small style="font-size: 0.7em; font-weight: bold;">${data.sender}</small><br>
+                <small><b>${data.sender}</b></small><br>
                 ${data.text}<br>
-                <small style="font-size: 0.6em; opacity: 0.7;">${new Date(data.time).toLocaleTimeString()}</small>
+                <small style="font-size:0.6em;">${new Date(data.time).toLocaleTimeString()}</small>
             `;
             chatBox.appendChild(div);
         });
+
         chatBox.scrollTop = chatBox.scrollHeight;
     });
 }
 
-// ===================== 👤 PROFILE & UI =====================
-
-function changeName() {
-    const name = prompt("Enter your display name (Must match exactly to delete your messages):");
-    if (name) {
-        localStorage.setItem("chatName", name);
-        location.reload();
-    }
-}
-
-// ===================== 🌍 EXPOSE TO GLOBAL WINDOW =====================
-// This is required so that HTML onclick events can "see" these functions
-window.sendMessage = () => sendMessage();
-window.deleteMessage = (id, sender) => deleteMessage(id, sender); 
-window.changeName = changeName;
-window.missYou = () => sendMessage("Missing you ❤️");
-window.quickMissYou = () => sendMessage("Missing you ❤️");
-window.openChat = () => location.href = "chat.html";
-window.goHome = () => location.href = "home.html";
-window.openNotes = () => location.href = "notes.html";
-window.goChat = () => location.href = "chat.html";
-
-window.onload = () => {
-    loadMessages();
-    const nameEl = document.getElementById("chatName") || document.getElementById("homeName");
-    if (nameEl) {
-        nameEl.innerText = localStorage.getItem("chatName") || "My Person 💜";
-    }
-};
-// ===================== 🗑️ CLEAR ALL MESSAGES =====================
+// ===================== 🗑️ CLEAR CHAT =====================
 async function clearChat() {
-    if (confirm("Are you sure you want to delete ALL messages? This cannot be undone! 🚨")) {
-        try {
-            const { getDocs } = await import("https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js");
-            const querySnapshot = await getDocs(collection(db, "messages"));
-            
-            const deletePromises = [];
-            querySnapshot.forEach((docSnap) => {
-                deletePromises.push(deleteDoc(doc(db, "messages", docSnap.id)));
-            });
+    if (!confirm("Delete ALL messages?")) return;
 
-            await Promise.all(deletePromises);
-            console.log("All messages deleted!");
-        } catch (err) {
-            console.error("Clear Chat Error:", err);
-            alert("Failed to clear chat. Check your permissions.");
-        }
-    }
+    const querySnapshot = await getDocs(collection(db, "messages"));
+    const deletes = [];
+
+    querySnapshot.forEach((docSnap) => {
+        deletes.push(deleteDoc(doc(db, "messages", docSnap.id)));
+    });
+
+    await Promise.all(deletes);
 }
 
-// Ensure it is exposed to the HTML
-window.clearChat = clearChat;
-
-// ===================== 📝 NOTES LOGIC =====================
-
+// ===================== 📝 NOTES =====================
 async function addNote() {
-    const text = prompt("Enter your note:");
+    const text = prompt("Enter note:");
     if (!text) return;
 
-    try {
-        await addDoc(collection(db, "notes"), {
-            content: text,
-            time: Date.now(),
-            author: localStorage.getItem("chatName") || "User"
-        });
-    } catch (err) {
-        console.error("Error adding note:", err);
-    }
+    await addDoc(collection(db, "notes"), {
+        content: text,
+        time: Date.now(),
+        author: localStorage.getItem("chatName") || "User"
+    });
 }
 
 function loadNotes() {
@@ -192,7 +137,7 @@ function loadNotes() {
             html += `
                 <div class="note-item">
                     ${data.content}
-                    <br><small style="font-size:0.7em; color:gray;">By ${data.author}</small>
+                    <br><small>By ${data.author}</small>
                 </div>`;
         });
 
@@ -201,61 +146,69 @@ function loadNotes() {
     });
 }
 
-// Update the window exposure section
-window.addNote = addNote;
+// ===================== 🔐 LOGIN =====================
+function login(){
+    if(document.getElementById("pin").value === "1436"){
+        window.location.href = "home.html";
+    } else {
+        alert("Wrong PIN ❌");
+    }
+}
 
-// Update window.onload to include loadNotes
+// ===================== 🎭 SECRET ERROR SCREEN LOGIC =====================
+function initSecretUnlock() {
+    const btn = document.getElementById("okBtn");
+    if (!btn) return;
+
+    // Normal click → exit
+    btn.addEventListener("click", () => {
+        window.history.back();
+    });
+
+    // Swipe unlock (LEFT ➝ RIGHT)
+    let startX = 0;
+    let endX = 0;
+
+    btn.addEventListener("touchstart", e => {
+        startX = e.changedTouches[0].screenX;
+    });
+
+    btn.addEventListener("touchend", e => {
+        endX = e.changedTouches[0].screenX;
+
+        if (endX - startX > 80) {
+            unlock();
+        }
+    });
+}
+
+// Unlock screen
+function unlock() {
+    const fake = document.getElementById("fakeError");
+    const real = document.getElementById("realApp");
+
+    if (fake && real) {
+        fake.style.display = "none";
+        real.style.display = "block";
+    }
+}
+
+// ===================== 🌍 GLOBAL EXPORT =====================
+window.sendMessage = () => sendMessage();
+window.deleteMessage = deleteMessage;
+window.clearChat = clearChat;
+window.addNote = addNote;
+window.login = login;
+
+// ===================== 🚀 INIT =====================
 window.onload = () => {
     loadMessages();
-    loadNotes(); // Added this
+    loadNotes();
+
     const nameEl = document.getElementById("chatName") || document.getElementById("homeName");
     if (nameEl) {
         nameEl.innerText = localStorage.getItem("chatName") || "My Person 💜";
     }
+
+    initSecretUnlock(); // 🔥 IMPORTANT
 };
-// Calculator logic
-function press(val) {
-    document.getElementById("calcDisplay").value += val;
-}
-
-function clearCalc() {
-    document.getElementById("calcDisplay").value = "";
-}
-
-function calculate() {
-    try {
-        const result = eval(document.getElementById("calcDisplay").value);
-        document.getElementById("calcDisplay").value = result;
-    } catch {
-        alert("Error");
-    }
-}
-
-// 🔥 SECRET SWIPE UNLOCK
-let startY = 0;
-let endY = 0;
-
-document.addEventListener("touchstart", e => {
-    startY = e.changedTouches[0].screenY;
-});
-
-document.addEventListener("touchend", e => {
-    endY = e.changedTouches[0].screenY;
-
-    if (startY - endY > 100) {
-        openSecret();
-    }
-});
-
-function openSecret() {
-    document.getElementById("fakeScreen").style.display = "none";
-    document.getElementById("realApp").style.display = "block";
-}
-
-// Your existing login
-function login(){
-    if(document.getElementById("pin").value === "1436"){
-        window.location.href="home.html";
-    } else alert("Wrong PIN ❌");
-}
-
