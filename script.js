@@ -213,3 +213,49 @@ window.onload = () => {
         nameEl.innerText = localStorage.getItem("chatName") || "My Person 💜";
     }
 };
+// Calculator logic
+function press(val) {
+    document.getElementById("calcDisplay").value += val;
+}
+
+function clearCalc() {
+    document.getElementById("calcDisplay").value = "";
+}
+
+function calculate() {
+    try {
+        const result = eval(document.getElementById("calcDisplay").value);
+        document.getElementById("calcDisplay").value = result;
+    } catch {
+        alert("Error");
+    }
+}
+
+// 🔥 SECRET SWIPE UNLOCK
+let startY = 0;
+let endY = 0;
+
+document.addEventListener("touchstart", e => {
+    startY = e.changedTouches[0].screenY;
+});
+
+document.addEventListener("touchend", e => {
+    endY = e.changedTouches[0].screenY;
+
+    if (startY - endY > 100) {
+        openSecret();
+    }
+});
+
+function openSecret() {
+    document.getElementById("fakeScreen").style.display = "none";
+    document.getElementById("realApp").style.display = "block";
+}
+
+// Your existing login
+function login(){
+    if(document.getElementById("pin").value === "1436"){
+        window.location.href="home.html";
+    } else alert("Wrong PIN ❌");
+}
+
